@@ -1,5 +1,5 @@
 import React from "react"
-import { render } from "enzyme"
+import { render } from "@testing-library/react";
 import Markdown from "core/components/providers/markdown"
 import { Markdown as OAS3Markdown } from "core/plugins/oas3/wrap-components/markdown.jsx"
 

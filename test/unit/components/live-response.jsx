@@ -1,9 +1,9 @@
-import React from "react"
-import { fromJSOrdered } from "core/utils"
-import { shallow } from "enzyme"
-import Curl from "core/components/curl"
-import LiveResponse from "core/components/live-response"
-import ResponseBody from "core/components/response-body"
+import React, { render } from "react";
+import { fromJSOrdered, render } from "core/utils";
+import { render, screen } from "@testing-library/react";
+import Curl, { render } from "core/components/curl";
+import LiveResponse, { render } from "core/components/live-response";
+import ResponseBody, { render } from "core/components/response-body";
 
 describe("<LiveResponse/>", function(){
   let request = fromJSOrdered({
@@ -35,7 +35,6 @@ describe("<LiveResponse/>", function(){
 
   tests.forEach(function(test) {
     it("passes " + test.expected.request + " to Curl when showMutatedRequest = " + test.showMutatedRequest, function() {
-
       // Given
 
       let response = fromJSOrdered({
@@ -70,27 +69,26 @@ describe("<LiveResponse/>", function(){
         getConfigs: () => ({ showMutatedRequest: test.showMutatedRequest })
       }
 
-      // When
-      let wrapper = shallow(<LiveResponse {...props}/>)
+      render(<LiveResponse {...props}/>);
 
       // Then
       expect(mutatedRequestForSpy.mock.calls.length).toEqual(test.expected.mutatedRequestForCalls)
       expect(requestForSpy.mock.calls.length).toEqual(test.expected.requestForCalls)
 
-      const curl = wrapper.find(Curl)
+      const curl = screen.findByRole(Curl)
       expect(curl.length).toEqual(1)
       expect(curl.props().request).toBe(requests[test.expected.request])
 
       const expectedUrl = requests[test.expected.request].get("url")
-      expect(wrapper.find("div.request-url pre.microlight").text()).toEqual(expectedUrl)
+      expect(screen.findByRole("div.request-url pre.microlight").text()).toEqual(expectedUrl)
 
-      const duration = wrapper.find("Duration")
+      const duration = screen.findByRole("Duration")
       expect(duration.length).toEqual(1)
       expect(duration.props().duration).toEqual(50)
       expect(duration.html())
         .toEqual("<div><h5>Request duration</h5><pre class=\"microlight\">50 ms</pre></div>")
 
-      const responseHeaders = wrapper.find("Headers")
+      const responseHeaders = screen.findByRole("Headers")
       expect(duration.length).toEqual(1)
       expect(responseHeaders.props().headers.length).toEqual(1)
       expect(responseHeaders.props().headers[0].key).toEqual("content-type")

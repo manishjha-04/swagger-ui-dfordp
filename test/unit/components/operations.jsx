@@ -1,9 +1,9 @@
-import React from "react"
-import { render } from "enzyme"
-import { fromJS } from "immutable"
-import DeepLink from "core/components/deep-link"
-import Operations from "core/components/operations"
-import {Collapse} from "core/components/layout-utils"
+import React, { render, screen } from "react";
+import { render, screen } from "@testing-library/react";
+import { fromJS, render, screen } from "immutable";
+import DeepLink, { render, screen } from "core/components/deep-link";
+import Operations, { render, screen } from "core/components/operations";
+import { Collapse, render, screen } from "core/components/layout-utils";
 
 const components = {
   Collapse,
@@ -63,10 +63,10 @@ describe("<Operations/>", function(){
       }
     }
 
-    let wrapper = render(<Operations {...props}/>)
+    render(<Operations {...props}/>)
 
-    expect(wrapper.find("span.mocked-op").length).toEqual(1)
-    expect(wrapper.find("span.mocked-op").eq(0).attr("id")).toEqual("/pets/{id}-get")
+    expect(screen.findByRole("span.mocked-op").length).toEqual(1)
+    expect(screen.findByRole("span.mocked-op").eq(0).attr("id")).toEqual("/pets/{id}-get")
   })
 
   it("should render an OAS3 `get` and `trace` method, but not a `foo` method", function(){
@@ -119,10 +119,10 @@ describe("<Operations/>", function(){
       }
     }
 
-    let wrapper = render(<Operations {...props}/>)
+    render(<Operations {...props}/>)
 
-    expect(wrapper.find("span.mocked-op").length).toEqual(2)
-    expect(wrapper.find("span.mocked-op").eq(0).attr("id")).toEqual("/pets/{id}-get")
-    expect(wrapper.find("span.mocked-op").eq(1).attr("id")).toEqual("/pets/{id}-trace")
+    expect(screen.findByRole("span.mocked-op").length).toEqual(2)
+    expect(screen.findByRole("span.mocked-op").eq(0).attr("id")).toEqual("/pets/{id}-get")
+    expect(screen.findByRole("span.mocked-op").eq(1).attr("id")).toEqual("/pets/{id}-trace")
   })
 })

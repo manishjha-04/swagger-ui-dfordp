@@ -1,10 +1,9 @@
-import React from "react"
-import { shallow } from "enzyme"
-import Operation from "core/components/operation"
+import React, { render } from "react";
+import { render, screen } from "@testing-library/react";
+import Operation, { render } from "core/components/operation";
 
 describe("<Operation/>", function(){
   it.skip("blanket tests", function(){
-
     let props = {
       operation: {get: ()=>{}},
       getComponent: ()=> "div",
@@ -17,14 +16,15 @@ describe("<Operation/>", function(){
       toggleCollapse: jest.fn()
     }
 
-    let wrapper = shallow(<Operation {...props}/>)
+    render(<Operation {...props}/>);
 
-    expect(wrapper.find(".opblock").length).toEqual(1)
-    expect(wrapper.find(".opblock-summary-method").text()).toEqual("GET")
-    expect(wrapper.find(".opblock-summary-path").text().trim()).toEqual("/one")
-    expect(wrapper.find("[isOpened]").prop("isOpened")).toEqual(true)
-
-    wrapper.find(".opblock-summary").simulate("click")
+    expect(screen.getByClassName(".opblock").length).toEqual(1)
+    expect(screen.getByClassName(".opblock-summary-method").text()).toEqual("GET")
+    expect(screen.getByClassName(".opblock-summary-path").text().trim()).toEqual("/one")
+    expect(screen.findByRole("[isOpened]").prop("isOpened")).toEqual(true)
+    
+    const opblockSummaryElement = screen.getByClassName("opblock-summary");
+    userEvent.click(opblockSummaryElement);
     expect(props.toggleCollapse).toHaveBeenCalled()
   })
 })

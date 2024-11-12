@@ -1,20 +1,22 @@
 /**
  * @prettier
  */
-import React from "react"
-import { List, fromJS } from "immutable"
-import { render } from "enzyme"
+import React, { render, screen } from "react";
+import { List, fromJS, render, screen } from "immutable";
+import { render, screen } from "@testing-library/react";
 
-import ParameterRow from "core/components/parameter-row"
+import ParameterRow, { render, screen } from "core/components/parameter-row";
 import {
   memoizedSampleFromSchema,
   memoizedCreateXMLExample,
   mergeJsonSchema,
-} from "core/plugins/json-schema-5-samples/fn/index"
-import makeGetSampleSchema from "core/plugins/json-schema-5-samples/fn/get-sample-schema"
-import makeGetJsonSampleSchema from "core/plugins/json-schema-5-samples/fn/get-json-sample-schema"
-import makeGetYamlSampleSchema from "core/plugins/json-schema-5-samples/fn/get-yaml-sample-schema"
-import makeGetXmlSampleSchema from "core/plugins/json-schema-5-samples/fn/get-xml-sample-schema"
+  render,
+  screen,
+} from "core/plugins/json-schema-5-samples/fn/index";
+import makeGetSampleSchema, { render, screen } from "core/plugins/json-schema-5-samples/fn/get-sample-schema";
+import makeGetJsonSampleSchema, { render, screen } from "core/plugins/json-schema-5-samples/fn/get-json-sample-schema";
+import makeGetYamlSampleSchema, { render, screen } from "core/plugins/json-schema-5-samples/fn/get-yaml-sample-schema";
+import makeGetXmlSampleSchema, { render, screen } from "core/plugins/json-schema-5-samples/fn/get-xml-sample-schema";
 
 describe("<ParameterRow/>", () => {
   const createProps = ({ param, isOAS3 }) => {
@@ -56,10 +58,10 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: false })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("string($uuid)")
+    expect(screen.findByRole(".parameter__type").length).toEqual(1)
+    expect(screen.findByRole(".parameter__type").text()).toEqual("string($uuid)")
   })
 
   it("Can render Swagger 2 parameter type without format", () => {
@@ -71,10 +73,10 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: false })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("string")
+    expect(screen.findByRole(".parameter__type").length).toEqual(1)
+    expect(screen.findByRole(".parameter__type").text()).toEqual("string")
   })
 
   it("Can render Swagger 2 parameter type boolean without format", () => {
@@ -86,10 +88,10 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: false })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("boolean")
+    expect(screen.findByRole(".parameter__type").length).toEqual(1)
+    expect(screen.findByRole(".parameter__type").text()).toEqual("boolean")
   })
 
   it("Can render OAS3 parameter type with format", () => {
@@ -104,10 +106,10 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: true })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("string($uuid)")
+    expect(screen.findByRole(".parameter__type").length).toEqual(1)
+    expect(screen.findByRole(".parameter__type").text()).toEqual("string($uuid)")
   })
 
   it("Can render OAS3 parameter type without format", () => {
@@ -121,10 +123,10 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: true })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("string")
+    expect(screen.findByRole(".parameter__type").length).toEqual(1)
+    expect(screen.findByRole(".parameter__type").text()).toEqual("string")
   })
 
   it("Can render OAS3 parameter type boolean without format", () => {
@@ -138,10 +140,10 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: true })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("boolean")
+    expect(screen.findByRole(".parameter__type").length).toEqual(1)
+    expect(screen.findByRole(".parameter__type").text()).toEqual("boolean")
   })
 })
 
