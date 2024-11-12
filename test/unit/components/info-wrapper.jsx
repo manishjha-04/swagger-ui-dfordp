@@ -1,7 +1,7 @@
-import React, { render } from "react";
-import { render, screen } from "@testing-library/react";
-import { fromJS, render } from "immutable";
-import InfoContainer, { render } from "core/containers/info";
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import { fromJS } from "immutable"
+import InfoContainer from "core/containers/info"
 
 describe("<InfoContainer/>", function () {
 
@@ -28,10 +28,10 @@ describe("<InfoContainer/>", function () {
     props.specSelectors = {...mockedProps.specSelectors}
     props.specSelectors.info = function () {return fromJS(["info1", "info2"])}
 
-    render(<InfoContainer {...props}/>);
+    render(<InfoContainer {...props}/>)
 
     // Then
-    const renderedInfo = screen.findByRole("span.mocked-info")
+    const renderedInfo = screen.getAllByRole("generic", { className: "mocked-info" })
     expect(renderedInfo.length).toEqual(1)
   })
 
@@ -41,10 +41,10 @@ describe("<InfoContainer/>", function () {
     props.specSelectors = {...mockedProps.specSelectors}
     props.specSelectors.info = function () {return fromJS([])}
 
-    render(<InfoContainer {...props}/>);
+    render(<InfoContainer {...props}/>)
 
     // Then
-    const renderedInfo = screen.findByRole("span.mocked-info")
+    const renderedInfo = screen.queryAllByRole("generic", { className: "mocked-info" })
     expect(renderedInfo.length).toEqual(0)
   })
 
@@ -52,10 +52,10 @@ describe("<InfoContainer/>", function () {
     // Given
     let props = {...mockedProps}
 
-    render(<InfoContainer {...props}/>);
+    render(<InfoContainer {...props}/>)
 
     // Then
-    const renderedInfo = screen.findByRole("span.mocked-info")
+    const renderedInfo = screen.queryAllByRole("generic", { className: "mocked-info" })
     expect(renderedInfo.length).toEqual(0)
   })
 })

@@ -1,9 +1,9 @@
-import React, { render, screen } from "react";
-import { render, screen } from "@testing-library/react";
-import FilterContainer, { render, screen } from "core/containers/filter";
-import { Col, render, screen } from "core/components/layout-utils";
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import FilterContainer from "core/containers/filter"
+import { Col } from "core/components/layout-utils"
 
-describe("<FilterContainer/>", function(){
+describe("<FilterContainer/>", function() {
 
   const mockedProps = {
     specSelectors: {
@@ -12,32 +12,32 @@ describe("<FilterContainer/>", function(){
     layoutSelectors: {
       currentFilter() {}
     },
-    getComponent: () => {return Col}
+    getComponent: () => { return Col }
   }
 
-  it("renders FilterContainer if filter is provided", function(){
+  it("renders FilterContainer if filter is provided", function() {
     // Given
-    let props = {...mockedProps}
-    props.layoutSelectors = {...mockedProps.specSelectors}
-    props.layoutSelectors.currentFilter = function() {return true}
+    let props = { ...mockedProps }
+    props.layoutSelectors = { ...mockedProps.specSelectors }
+    props.layoutSelectors.currentFilter = function() { return true }
 
-    render(<FilterContainer {...props}/>);
+    render(<FilterContainer {...props} />)
 
     // Then
-    const renderedColInsideFilter = screen.findByRole(Col)
-    expect(renderedColInsideFilter.length).toEqual(1)
+    const renderedColInsideFilter = screen.getByRole("columnheader")
+    expect(renderedColInsideFilter).toBeInTheDocument()
   })
 
-  it("does not render FilterContainer if filter is false", function(){
+  it("does not render FilterContainer if filter is false", function() {
     // Given
-    let props = {...mockedProps}
-    props.layoutSelectors = {...mockedProps.specSelectors}
-    props.layoutSelectors.currentFilter = function() {return false}
+    let props = { ...mockedProps }
+    props.layoutSelectors = { ...mockedProps.specSelectors }
+    props.layoutSelectors.currentFilter = function() { return false }
 
-    render(<FilterContainer {...props}/>);
+    render(<FilterContainer {...props} />)
 
     // Then
-    const renderedColInsideFilter = screen.findByRole(Col)
-    expect(renderedColInsideFilter.length).toEqual(0)
+    const renderedColInsideFilter = screen.getByRole("columnheader")
+    expect(renderedColInsideFilter).toBeNull()
   })
 })

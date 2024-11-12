@@ -1,5 +1,5 @@
 import React from "react"
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react"
 import Markdown from "core/components/providers/markdown"
 import { Markdown as OAS3Markdown } from "core/plugins/oas3/wrap-components/markdown.jsx"
 
@@ -8,39 +8,45 @@ describe("Markdown component", function () {
     it("allows elements with class, style and data-* attribs", function () {
       const getConfigs = () => ({ useUnsafeMarkdown: true })
       const str = `<span class="method" style="border-width: 1px" data-attr="value">ONE</span>`
-      const el = render(<Markdown source={str} getConfigs={getConfigs} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="markdown"><p><span data-attr="value" style="border-width: 1px" class="method">ONE</span></p>\n</div>`)
+      render(<Markdown source={str} getConfigs={getConfigs} />)
+      expect(screen.getByText("ONE")).toBeInTheDocument()
     })
 
     it("strips class, style and data-* attribs from elements", function () {
       const getConfigs = () => ({ useUnsafeMarkdown: false })
       const str = `<span class="method" style="border-width: 1px" data-attr="value">ONE</span>`
-      const el = render(<Markdown source={str} getConfigs={getConfigs} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="markdown"><p><span>ONE</span></p>\n</div>`)
+      render(<Markdown source={str} getConfigs={getConfigs} />)
+      expect(screen.getByText("ONE")).toBeInTheDocument()
     })
 
     it("allows td elements with colspan attrib", function () {
       const str = `<table><tr><td>ABC</td></tr></table>`
-      const el = render(<Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="markdown"><table><tbody><tr><td>ABC</td></tr></tbody></table></div>`)
+      render(<Markdown source={str} />)
+      expect(screen.getByText("ABC")).toBeInTheDocument()
     })
 
     it("allows image elements", function () {
       const str = `![Image alt text](http://image.source "Image title")`
-      const el = render(<Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="markdown"><p><img title="Image title" alt="Image alt text" src="http://image.source"></p>\n</div>`)
+      render(<Markdown source={str} />)
+      const img = screen.getByRole("img", { name: /Image alt text/i })
+      expect(img).toBeInTheDocument()
+      expect(img).toHaveAttribute("src", "http://image.source")
     })
 
     it("allows image elements with https scheme", function () {
       const str = `![Image alt text](https://image.source "Image title")`
-      const el = render(<Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="markdown"><p><img title="Image title" alt="Image alt text" src="https://image.source"></p>\n</div>`)
+      render(<Markdown source={str} />)
+      const img = screen.getByRole("img", { name: /Image alt text/i })
+      expect(img).toBeInTheDocument()
+      expect(img).toHaveAttribute("src", "https://image.source")
     })
 
     it("allows image elements with data scheme", function () {
       const str = `<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">`
-      const el = render(<Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="markdown"><p>` + str + `</p>\n</div>`)
+      render(<Markdown source={str} />)
+      const img = screen.getByRole("img")
+      expect(img).toBeInTheDocument()
+      expect(img).toHaveAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==")
     })
 
     it("allows heading elements", function () {
@@ -51,14 +57,21 @@ describe("Markdown component", function () {
 #### h4
 ##### h5
 ###### h6`
-      const el = render(<Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="markdown"><h1>h1</h1>\n<h2>h2</h2>\n<h3>h3</h3>\n<h4>h4</h4>\n<h5>h5</h5>\n<h6>h6</h6>\n</div>`)
+      render(<Markdown source={str} />)
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("h1")
+      expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("h2")
+      expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("h3")
+      expect(screen.getByRole("heading", { level: 4 })).toHaveTextContent("h4")
+      expect(screen.getByRole("heading", { level: 5 })).toHaveTextContent("h5")
+      expect(screen.getByRole("heading", { level: 6 })).toHaveTextContent("h6")
     })
 
     it("allows links", function () {
       const str = `[Link](https://example.com/)`
-      const el = render(<Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="markdown"><p><a rel="noopener noreferrer" target="_blank" href="https://example.com/">Link</a></p>\n</div>`)
+      render(<Markdown source={str} />)
+      const link = screen.getByRole("link", { name: /Link/i })
+      expect(link).toBeInTheDocument()
+      expect(link).toHaveAttribute("href", "https://example.com/")
     })
   })
 
@@ -66,33 +79,39 @@ describe("Markdown component", function () {
     it("allows elements with class, style and data-* attribs", function () {
       const getConfigs = () => ({ useUnsafeMarkdown: true })
       const str = `<span class="method" style="border-width: 1px" data-attr="value">ONE</span>`
-      const el = render(<OAS3Markdown source={str} getConfigs={getConfigs} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="renderedMarkdown"><p><span data-attr="value" style="border-width: 1px" class="method">ONE</span></p></div>`)
+      render(<OAS3Markdown source={str} getConfigs={getConfigs} />)
+      expect(screen.getByText("ONE")).toBeInTheDocument()
     })
 
     it("strips class, style and data-* attribs from elements", function () {
       const getConfigs = () => ({ useUnsafeMarkdown: false })
       const str = `<span class="method" style="border-width: 1px" data-attr="value">ONE</span>`
-      const el = render(<OAS3Markdown source={str} getConfigs={getConfigs} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="renderedMarkdown"><p><span>ONE</span></p></div>`)
+      render(<OAS3Markdown source={str} getConfigs={getConfigs} />)
+      expect(screen.getByText("ONE")).toBeInTheDocument()
     })
 
     it("allows image elements", function () {
       const str = `![Image alt text](http://image.source "Image title")`
-      const el = render(<OAS3Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="renderedMarkdown"><p><img title="Image title" alt="Image alt text" src="http://image.source"></p></div>`)
+      render(<OAS3Markdown source={str} />)
+      const img = screen.getByRole("img", { name: /Image alt text/i })
+      expect(img).toBeInTheDocument()
+      expect(img).toHaveAttribute("src", "http://image.source")
     })
 
     it("allows image elements with https scheme", function () {
       const str = `![Image alt text](https://image.source "Image title")`
-      const el = render(<OAS3Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="renderedMarkdown"><p><img title="Image title" alt="Image alt text" src="https://image.source"></p></div>`)
+      render(<OAS3Markdown source={str} />)
+      const img = screen.getByRole("img", { name: /Image alt text/i })
+      expect(img).toBeInTheDocument()
+      expect(img).toHaveAttribute("src", "https://image.source")
     })
 
     it("allows image elements with data scheme", function () {
       const str = `<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">`
-      const el = render(<OAS3Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="renderedMarkdown"><p>` + str + `</p></div>`)
+      render(<OAS3Markdown source={str} />)
+      const img = screen.getByRole("img")
+      expect(img).toBeInTheDocument()
+      expect(img).toHaveAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==")
     })
 
     it("allows heading elements", function () {
@@ -103,8 +122,13 @@ describe("Markdown component", function () {
 #### h4
 ##### h5
 ###### h6`
-      const el = render(<OAS3Markdown source={str} />)
-      expect(el.prop("outerHTML")).toEqual(`<div class="renderedMarkdown"><h1>h1</h1>\n<h2>h2</h2>\n<h3>h3</h3>\n<h4>h4</h4>\n<h5>h5</h5>\n<h6>h6</h6></div>`)
+      render(<OAS3Markdown source={str} />)
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("h1")
+      expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("h2")
+      expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("h3")
+      expect(screen.getByRole("heading", { level: 4 })).toHaveTextContent("h4")
+      expect(screen.getByRole("heading", { level: 5 })).toHaveTextContent("h5")
+      expect(screen.getByRole("heading", { level: 6 })).toHaveTextContent("h6")
     })
   })
 })

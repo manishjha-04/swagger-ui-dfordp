@@ -1,7 +1,7 @@
-import React, { render } from "react";
-import { render, screen } from "@testing-library/react";
-import OnlineValidatorBadge, { render } from "core/components/online-validator-badge";
-import expect, { render } from "expect";
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import OnlineValidatorBadge from "core/components/online-validator-badge"
+import expect from "expect"
 
 describe("<OnlineValidatorBadge/>", function () {
   it("should render a validator link and image correctly for the default validator", function () {
@@ -13,13 +13,13 @@ describe("<OnlineValidatorBadge/>", function () {
         url: () => "https://smartbear.com/swagger.json"
       }
     }
-    render(<OnlineValidatorBadge {...props} />);
+    render(<OnlineValidatorBadge {...props} />)
 
     // Then
-    expect(screen.findByRole("a").props().href).toEqual(
+    expect(screen.getByRole("link").getAttribute("href")).toEqual(
       "https://validator.swagger.io/validator/debug?url=https%3A%2F%2Fsmartbear.com%2Fswagger.json"
     )
-    expect(screen.findByRole("ValidatorImage").length).toEqual(1)
+    expect(screen.getByRole("img", { name: /ValidatorImage/i })).toBeInTheDocument()
   })
 
   it("should encode a definition URL correctly", function () {
@@ -31,14 +31,14 @@ describe("<OnlineValidatorBadge/>", function () {
         url: () => "http://google.com/swagger.json"
       }
     }
-    render(<OnlineValidatorBadge {...props} />);
+    render(<OnlineValidatorBadge {...props} />)
 
     // Then
-    expect(screen.findByRole("a").props().href).toEqual(
+    expect(screen.getByRole("link").getAttribute("href")).toEqual(
       "https://validator.swagger.io/validator/debug?url=http%3A%2F%2Fgoogle.com%2Fswagger.json"
     )
-    expect(screen.findByRole("ValidatorImage").length).toEqual(1)
-    expect(screen.findByRole("ValidatorImage").props().src).toEqual(
+    expect(screen.getByRole("img", { name: /ValidatorImage/i })).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: /ValidatorImage/i }).getAttribute("src")).toEqual(
       "https://validator.swagger.io/validator?url=http%3A%2F%2Fgoogle.com%2Fswagger.json"
     )
   })
@@ -54,16 +54,15 @@ describe("<OnlineValidatorBadge/>", function () {
         url: () => "http://google.com/swagger.json"
       }
     }
-    render(<OnlineValidatorBadge {...props} />);
+    render(<OnlineValidatorBadge {...props} />)
 
     // Then
-    expect(screen.findByRole("a").props().href).toEqual(
+    expect(screen.getByRole("link").getAttribute("href")).toEqual(
       "https://validator.swagger.io/validator/debug?url=http%3A%2F%2Fgoogle.com%2Fswagger.json"
     )
-    expect(screen.findByRole("ValidatorImage").length).toEqual(1)
-    expect(screen.findByRole("ValidatorImage").props().src).toEqual(
+    expect(screen.getByRole("img", { name: /ValidatorImage/i })).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: /ValidatorImage/i }).getAttribute("src")).toEqual(
       "https://validator.swagger.io/validator?url=http%3A%2F%2Fgoogle.com%2Fswagger.json"
     )
   })
-  // should resolve a definition URL against the browser's location
 })

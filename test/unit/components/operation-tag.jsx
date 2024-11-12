@@ -1,11 +1,11 @@
-import React, { render } from "react";
-import { render, screen } from "@testing-library/react";
-import OperationTag, { render } from "core/components/operation-tag";
-import Im, { render } from "immutable";
-import { Link, render } from "core/components/layout-utils";
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import OperationTag from "core/components/operation-tag"
+import Im from "immutable"
+import { Link } from "core/components/layout-utils"
 
-describe("<OperationTag/>", function(){
-  it("render externalDocs URL for swagger v2", function(){
+describe("<OperationTag/>", function() {
+  it("render externalDocs URL for swagger v2", function() {
     const dummyComponent = () => null
     const components = {
       Collapse: () => dummyComponent,
@@ -39,14 +39,13 @@ describe("<OperationTag/>", function(){
       }
     }
 
-    render(<OperationTag {...props}/>);
+    render(<OperationTag {...props} />)
 
-    const opblockTag = screen.findByRole(".opblock-tag")
-    expect(opblockTag.length).toEqual(1)
-    expect(opblockTag.getElement().type).toEqual("h3")
+    const opblockTag = screen.getByRole("heading", { name: /testtag/i })
+    expect(opblockTag).toBeInTheDocument()
 
-    const renderedLink = screen.findByRole("Link")
-    expect(renderedLink.length).toEqual(1)
-    expect(renderedLink.props().href).toEqual("http://swagger.io")
+    const renderedLink = screen.getByRole("link", { name: /Find out more/i })
+    expect(renderedLink).toBeInTheDocument()
+    expect(renderedLink).toHaveAttribute("href", "http://swagger.io")
   })
 })

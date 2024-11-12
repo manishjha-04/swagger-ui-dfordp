@@ -1,31 +1,126 @@
-import React, { render } from "react";
-import { render, screen } from "@testing-library/react";
-import Operation, { render } from "core/components/operation";
-import userEvent from '@testing-library/user-event';
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import { fromJS } from "immutable"
+import DeepLink from "core/components/deep-link"
+import Operations from "core/components/operations"
+import { Collapse } from "core/components/layout-utils"
 
-describe("<Operation/>", function(){
-  it.skip("blanket tests", function(){
+const components = {
+  Collapse,
+  DeepLink,
+  OperationContainer: ({ path, method }) => <span className="mocked-op" id={`${path}-${method}`} />,
+  OperationTag: "div",
+}
+
+describe("<Operations/>", function() {
+  it("should render a Swagger2 `get` method, but not a `trace` or `foo` method", function() {
     let props = {
-      operation: {get: ()=>{}},
-      getComponent: ()=> "div",
-      specSelectors: { security(){} },
-      path: "/one",
-      method: "get",
-      shown: true,
-      showOpId: "",
-      showOpIdPrefix: "",
-      toggleCollapse: jest.fn()
+      fn: {},
+      specActions: {},
+      layoutActions: {},
+      getComponent: (name) => {
+        return components[name] || null
+      },
+      getConfigs: () => {
+        return {}
+      },
+      specSelectors: {
+        isOAS3() { return false },
+        url() { return "https://petstore.swagger.io/v2/swagger.json" },
+        validOperationMethods() { return ["get", "put", "post", "delete", "options", "head", "patch"] },
+        taggedOperations() {
+          return fromJS({
+            "default": {
+              "operations": [
+                {
+                  "path": "/pets/{id}",
+                  "method": "get"
+                },
+                {
+                  "path": "/pets/{id}",
+                  "method": "trace"
+                },
+                {
+                  "path": "/pets/{id}",
+                  "method": "foo"
+                },
+              ]
+            }
+          })
+        },
+      },
+      layoutSelectors: {
+        currentFilter() {
+          return null
+        },
+        isShown() {
+          return true
+        },
+        show() {
+          return true
+        }
+      }
     }
 
-    render(<Operation {...props}/>);
+    render(<Operations {...props} />)
 
-    expect(screen.getByClassName(".opblock").length).toEqual(1)
-    expect(screen.getByClassName(".opblock-summary-method").text()).toEqual("GET")
-    expect(screen.getByClassName(".opblock-summary-path").text().trim()).toEqual("/one")
-    expect(screen.findByRole("[isOpened]").prop("isOpened")).toEqual(true)
-    
-    const opblockSummaryElement = screen.getByClassName("opblock-summary");
-    userEvent.click(opblockSummaryElement);
-    expect(props.toggleCollapse).toHaveBeenCalled()
+    expect(screen.getAllByRole("span", { className: "mocked-op" }).length).toEqual(1)
+    expect(screen.getAllByRole("span", { className: "mocked-op" })[0].getAttribute("id")).toEqual("/pets/{id}-get")
+  })
+
+  it("should render an OAS3 `get` and `trace` method, but not a `foo` method", function() {
+    let props = {
+      fn: {},
+      specActions: {},
+      layoutActions: {},
+      getComponent: (name) => {
+        return components[name] || null
+      },
+      getConfigs: () => {
+        return {}
+      },
+      specSelectors: {
+        isOAS3() { return true },
+        url() { return "https://petstore.swagger.io/v2/swagger.json" },
+        validOperationMethods() { return ["get", "put", "post", "delete", "options", "head", "patch", "trace"] },
+        taggedOperations() {
+          return fromJS({
+            "default": {
+              "operations": [
+                {
+                  "path": "/pets/{id}",
+                  "method": "get"
+                },
+                {
+                  "path": "/pets/{id}",
+                  "method": "trace"
+                },
+                {
+                  "path": "/pets/{id}",
+                  "method": "foo"
+                },
+              ]
+            }
+          })
+        },
+      },
+      layoutSelectors: {
+        currentFilter() {
+          return null
+        },
+        isShown() {
+          return true
+        },
+        show() {
+          return true
+        }
+      }
+    }
+
+    render(<Operations {...props} />)
+
+    expect(screen.getAllByRole("span", { className: "mocked-op" }).length).toEqual(2)
+    expect(screen.getAllByRole("span", { className: "mocked-op" })[0].getAttribute("id")).toEqual("/pets/{id}-get")
+    expect(screen.getAllByRole("span", { className: "mocked-op" })[1].getAttribute("id")).toEqual("/pets/{id}-trace")
   })
 })

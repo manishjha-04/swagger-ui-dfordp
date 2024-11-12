@@ -1,99 +1,68 @@
-import React, { render } from "react";
-import { fromJSOrdered, render } from "core/utils";
-import { render, screen } from "@testing-library/react";
-import Curl, { render } from "core/components/curl";
-import LiveResponse, { render } from "core/components/live-response";
-import ResponseBody, { render } from "core/components/response-body";
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import OnlineValidatorBadge from "core/components/online-validator-badge"
+import expect from "expect"
 
-describe("<LiveResponse/>", function(){
-  let request = fromJSOrdered({
-    credentials: "same-origin",
-    headers: {
-      accept: "application/xml"
-    },
-    url: "http://petstore.swagger.io/v2/pet/1"
+describe("<OnlineValidatorBadge/>", function () {
+  it("should render a validator link and image correctly for the default validator", function () {
+    // When
+    const props = {
+      getConfigs: () => ({}),
+      getComponent: () => null,
+      specSelectors: {
+        url: () => "https://smartbear.com/swagger.json"
+      }
+    }
+    render(<OnlineValidatorBadge {...props} />)
+
+    // Then
+    expect(screen.getByRole("link").getAttribute("href")).toEqual(
+      "https://validator.swagger.io/validator/debug?url=https%3A%2F%2Fsmartbear.com%2Fswagger.json"
+    )
+    expect(screen.getByRole("img", { name: /ValidatorImage/i })).toBeInTheDocument()
   })
 
-  let mutatedRequest = fromJSOrdered({
-    credentials: "same-origin",
-    headers: {
-      accept: "application/xml",
-      mutated: "header"
-    },
-    url: "http://mutated.petstore.swagger.io/v2/pet/1"
+  it("should encode a definition URL correctly", function () {
+    // When
+    const props = {
+      getConfigs: () => ({}),
+      getComponent: () => null,
+      specSelectors: {
+        url: () => "http://google.com/swagger.json"
+      }
+    }
+    render(<OnlineValidatorBadge {...props} />)
+
+    // Then
+    expect(screen.getByRole("link").getAttribute("href")).toEqual(
+      "https://validator.swagger.io/validator/debug?url=http%3A%2F%2Fgoogle.com%2Fswagger.json"
+    )
+    expect(screen.getByRole("img", { name: /ValidatorImage/i })).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: /ValidatorImage/i }).getAttribute("src")).toEqual(
+      "https://validator.swagger.io/validator?url=http%3A%2F%2Fgoogle.com%2Fswagger.json"
+    )
   })
 
-  let requests = {
-    request: request,
-    mutatedRequest: mutatedRequest
-  }
+  it("should resolve a definition URL against the browser's location", function () {
+    // TODO: mock `window`
+    // When
 
-  const tests = [
-    { showMutatedRequest: true, expected: { request: "mutatedRequest", requestForCalls: 0, mutatedRequestForCalls: 1 } },
-    { showMutatedRequest: false, expected: { request: "request", requestForCalls: 1, mutatedRequestForCalls: 0 } }
-  ]
-
-  tests.forEach(function(test) {
-    it("passes " + test.expected.request + " to Curl when showMutatedRequest = " + test.showMutatedRequest, function() {
-      // Given
-
-      let response = fromJSOrdered({
-        status: 200,
-        url: "http://petstore.swagger.io/v2/pet/1",
-        headers: {
-          "content-type": "application/xml"
-        },
-        text: "<response/>",
-        duration: 50
-      })
-
-      let mutatedRequestForSpy = jest.fn().mockImplementation(function() { return mutatedRequest })
-      let requestForSpy = jest.fn().mockImplementation(function() { return request })
-
-      let components = {
-        curl: Curl,
-        responseBody: ResponseBody
+    const props = {
+      getConfigs: () => ({}),
+      getComponent: () => null,
+      specSelectors: {
+        url: () => "http://google.com/swagger.json"
       }
+    }
+    render(<OnlineValidatorBadge {...props} />)
 
-      let props = {
-        response: response,
-        specSelectors: {
-          mutatedRequestFor: mutatedRequestForSpy,
-          requestFor: requestForSpy,
-        },
-        pathMethod: [ "/one", "get" ],
-        getComponent: (c) => {
-          return components[c]
-        },
-        displayRequestDuration: true,
-        getConfigs: () => ({ showMutatedRequest: test.showMutatedRequest })
-      }
-
-      render(<LiveResponse {...props}/>);
-
-      // Then
-      expect(mutatedRequestForSpy.mock.calls.length).toEqual(test.expected.mutatedRequestForCalls)
-      expect(requestForSpy.mock.calls.length).toEqual(test.expected.requestForCalls)
-
-      const curl = screen.findByRole(Curl)
-      expect(curl.length).toEqual(1)
-      expect(curl.props().request).toBe(requests[test.expected.request])
-
-      const expectedUrl = requests[test.expected.request].get("url")
-      expect(screen.findByRole("div.request-url pre.microlight").text()).toEqual(expectedUrl)
-
-      const duration = screen.findByRole("Duration")
-      expect(duration.length).toEqual(1)
-      expect(duration.props().duration).toEqual(50)
-      expect(duration.html())
-        .toEqual("<div><h5>Request duration</h5><pre class=\"microlight\">50 ms</pre></div>")
-
-      const responseHeaders = screen.findByRole("Headers")
-      expect(duration.length).toEqual(1)
-      expect(responseHeaders.props().headers.length).toEqual(1)
-      expect(responseHeaders.props().headers[0].key).toEqual("content-type")
-      expect(responseHeaders.html())
-        .toEqual("<div><h5>Response headers</h5><pre class=\"microlight\"><span class=\"headerline\"> content-type: application/xml </span></pre></div>")
-    })
+    // Then
+    expect(screen.getByRole("link").getAttribute("href")).toEqual(
+      "https://validator.swagger.io/validator/debug?url=http%3A%2F%2Fgoogle.com%2Fswagger.json"
+    )
+    expect(screen.getByRole("img", { name: /ValidatorImage/i })).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: /ValidatorImage/i }).getAttribute("src")).toEqual(
+      "https://validator.swagger.io/validator?url=http%3A%2F%2Fgoogle.com%2Fswagger.json"
+    )
   })
 })

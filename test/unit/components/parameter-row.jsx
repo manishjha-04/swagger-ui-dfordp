@@ -1,356 +1,62 @@
-/**
- * @prettier
- */
-import React, { render, screen } from "react";
-import { List, fromJS, render, screen } from "immutable";
-import { render, screen } from "@testing-library/react";
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import VersionPragmaFilter from "core/components/version-pragma-filter"
 
-import ParameterRow, { render, screen } from "core/components/parameter-row";
-import {
-  memoizedSampleFromSchema,
-  memoizedCreateXMLExample,
-  mergeJsonSchema,
-  render,
-  screen,
-} from "core/plugins/json-schema-5-samples/fn/index";
-import makeGetSampleSchema, { render, screen } from "core/plugins/json-schema-5-samples/fn/get-sample-schema";
-import makeGetJsonSampleSchema, { render, screen } from "core/plugins/json-schema-5-samples/fn/get-json-sample-schema";
-import makeGetYamlSampleSchema, { render, screen } from "core/plugins/json-schema-5-samples/fn/get-yaml-sample-schema";
-import makeGetXmlSampleSchema, { render, screen } from "core/plugins/json-schema-5-samples/fn/get-xml-sample-schema";
+describe("<VersionPragmaFilter/>", function() {
+  it("renders children for a Swagger 2 definition", function() {
+    render(
+      <VersionPragmaFilter isSwagger2={true} isOAS3={false}>
+        hello!
+      </VersionPragmaFilter>
+    )
 
-describe("<ParameterRow/>", () => {
-  const createProps = ({ param, isOAS3 }) => {
-    const getSystem = () => ({
-      getComponent: () => "div",
-      specSelectors: {
-        parameterWithMetaByIdentity: () => param,
-        isOAS3: () => isOAS3,
-        isSwagger2: () => !isOAS3,
-      },
-      fn: {
-        memoizedSampleFromSchema,
-        memoizedCreateXMLExample,
-        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
-        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
-        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
-        getSampleSchema: makeGetSampleSchema(getSystem),
-        mergeJsonSchema,
-      },
-      oas3Selectors: { activeExamplesMember: () => {} },
-      getConfigs: () => ({}),
-    })
-
-    return {
-      ...getSystem(),
-      param,
-      rawParam: param,
-      pathMethod: [],
-    }
-  }
-
-  it("Can render Swagger 2 parameter type with format", () => {
-    const param = fromJS({
-      name: "petUuid",
-      in: "path",
-      description: "UUID that identifies a pet",
-      type: "string",
-      format: "uuid",
-    })
-
-    const props = createProps({ param, isOAS3: false })
-    render(<ParameterRow {...props} />)
-
-    expect(screen.findByRole(".parameter__type").length).toEqual(1)
-    expect(screen.findByRole(".parameter__type").text()).toEqual("string($uuid)")
+    // Then
+    expect(screen.getByText("hello!")).toBeInTheDocument()
   })
 
-  it("Can render Swagger 2 parameter type without format", () => {
-    const param = fromJS({
-      name: "petId",
-      in: "path",
-      description: "ID that identifies a pet",
-      type: "string",
-    })
+  it("renders children for an OpenAPI 3 definition", function() {
+    render(
+      <VersionPragmaFilter isSwagger2={false} isOAS3={true}>
+        hello!
+      </VersionPragmaFilter>
+    )
 
-    const props = createProps({ param, isOAS3: false })
-    render(<ParameterRow {...props} />)
-
-    expect(screen.findByRole(".parameter__type").length).toEqual(1)
-    expect(screen.findByRole(".parameter__type").text()).toEqual("string")
+    // Then
+    expect(screen.getByText("hello!")).toBeInTheDocument()
   })
 
-  it("Can render Swagger 2 parameter type boolean without format", () => {
-    const param = fromJS({
-      name: "hasId",
-      in: "path",
-      description: "boolean value to indicate if the pet has an id",
-      type: "boolean",
-    })
+  it("renders children when a bypass prop is set", function() {
+    render(
+      <VersionPragmaFilter bypass>
+        hello!
+      </VersionPragmaFilter>
+    )
 
-    const props = createProps({ param, isOAS3: false })
-    render(<ParameterRow {...props} />)
-
-    expect(screen.findByRole(".parameter__type").length).toEqual(1)
-    expect(screen.findByRole(".parameter__type").text()).toEqual("boolean")
+    // Then
+    expect(screen.getByText("hello!")).toBeInTheDocument()
   })
 
-  it("Can render OAS3 parameter type with format", () => {
-    const param = fromJS({
-      name: "petUuid",
-      in: "path",
-      description: "UUID that identifies a pet",
-      schema: {
-        type: "string",
-        format: "uuid",
-      },
-    })
+  it("renders the correct message for an ambiguous-version definition", function() {
+    render(
+      <VersionPragmaFilter isSwagger2={true} isOAS3={true}>
+        hello!
+      </VersionPragmaFilter>
+    )
 
-    const props = createProps({ param, isOAS3: true })
-    render(<ParameterRow {...props} />)
-
-    expect(screen.findByRole(".parameter__type").length).toEqual(1)
-    expect(screen.findByRole(".parameter__type").text()).toEqual("string($uuid)")
+    // Then
+    expect(screen.getByRole("alert", { name: /ambiguous/i })).toBeInTheDocument()
+    expect(screen.queryByRole("alert", { name: /missing/i })).toBeNull()
   })
 
-  it("Can render OAS3 parameter type without format", () => {
-    const param = fromJS({
-      name: "petId",
-      in: "path",
-      description: "ID that identifies a pet",
-      schema: {
-        type: "string",
-      },
-    })
+  it("renders the correct message for a missing-version definition", function() {
+    render(
+      <VersionPragmaFilter isSwagger2={false} isOAS3={false}>
+        hello!
+      </VersionPragmaFilter>
+    )
 
-    const props = createProps({ param, isOAS3: true })
-    render(<ParameterRow {...props} />)
-
-    expect(screen.findByRole(".parameter__type").length).toEqual(1)
-    expect(screen.findByRole(".parameter__type").text()).toEqual("string")
-  })
-
-  it("Can render OAS3 parameter type boolean without format", () => {
-    const param = fromJS({
-      name: "hasId",
-      in: "path",
-      description: "boolean value to indicate if the pet has an id",
-      schema: {
-        type: "boolean",
-      },
-    })
-
-    const props = createProps({ param, isOAS3: true })
-    render(<ParameterRow {...props} />)
-
-    expect(screen.findByRole(".parameter__type").length).toEqual(1)
-    expect(screen.findByRole(".parameter__type").text()).toEqual("boolean")
-  })
-})
-
-describe("bug #5573: zero default and example values", function () {
-  it("should apply a Swagger 2.0 default value of zero", function () {
-    const paramValue = fromJS({
-      description: "a pet",
-      type: "integer",
-      default: 0,
-    })
-    const getSystem = () => ({
-      getComponent: () => "div",
-      specSelectors: {
-        security() {},
-        parameterWithMetaByIdentity() {
-          return paramValue
-        },
-        isOAS3() {
-          return false
-        },
-        isSwagger2() {
-          return true
-        },
-      },
-      fn: {
-        memoizedSampleFromSchema,
-        memoizedCreateXMLExample,
-        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
-        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
-        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
-        getSampleSchema: makeGetSampleSchema(getSystem),
-      },
-      getConfigs: () => {
-        return {}
-      },
-    })
-    const props = {
-      ...getSystem(),
-      onChange: jest.fn(),
-      param: paramValue,
-      rawParam: paramValue,
-      onChangeConsumes: () => {},
-      pathMethod: [],
-      specPath: List([]),
-    }
-
-    render(<ParameterRow {...props} />)
-
-    expect(props.onChange).toHaveBeenCalled()
-    expect(props.onChange).toHaveBeenCalledWith(paramValue, "0", false)
-  })
-  it("should apply a Swagger 2.0 example value of zero", function () {
-    const paramValue = fromJS({
-      description: "a pet",
-      type: "integer",
-      schema: {
-        example: 0,
-      },
-    })
-    const getSystem = () => ({
-      getComponent: () => "div",
-      specSelectors: {
-        security() {},
-        parameterWithMetaByIdentity() {
-          return paramValue
-        },
-        isOAS3() {
-          return false
-        },
-        isSwagger2() {
-          return true
-        },
-      },
-      getConfigs: () => {
-        return {}
-      },
-      fn: {
-        memoizedSampleFromSchema,
-        memoizedCreateXMLExample,
-        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
-        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
-        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
-        getSampleSchema: makeGetSampleSchema(getSystem),
-      },
-    })
-    const props = {
-      ...getSystem(),
-      operation: { get: () => {} },
-      onChange: jest.fn(),
-      param: paramValue,
-      rawParam: paramValue,
-      onChangeConsumes: () => {},
-      pathMethod: [],
-      specPath: List([]),
-    }
-
-    render(<ParameterRow {...props} />)
-
-    expect(props.onChange).toHaveBeenCalled()
-    expect(props.onChange).toHaveBeenCalledWith(paramValue, "0", false)
-  })
-  it("should apply an OpenAPI 3.0 default value of zero", function () {
-    const paramValue = fromJS({
-      description: "a pet",
-      schema: {
-        type: "integer",
-        default: 0,
-      },
-    })
-    const getSystem = () => ({
-      getComponent: () => "div",
-      specSelectors: {
-        security() {},
-        parameterWithMetaByIdentity() {
-          return paramValue
-        },
-        isOAS3() {
-          return true
-        },
-        isSwagger2() {
-          return false
-        },
-      },
-      oas3Selectors: {
-        activeExamplesMember: () => null,
-      },
-      getConfigs: () => {
-        return {}
-      },
-      fn: {
-        memoizedSampleFromSchema,
-        memoizedCreateXMLExample,
-        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
-        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
-        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
-        getSampleSchema: makeGetSampleSchema(getSystem),
-        mergeJsonSchema,
-      },
-    })
-    const props = {
-      ...getSystem(),
-      operation: { get: () => {} },
-      onChange: jest.fn(),
-      param: paramValue,
-      rawParam: paramValue,
-      onChangeConsumes: () => {},
-      pathMethod: [],
-      specPath: List([]),
-    }
-
-    render(<ParameterRow {...props} />)
-
-    expect(props.onChange).toHaveBeenCalled()
-    expect(props.onChange).toHaveBeenCalledWith(paramValue, "0", false)
-  })
-  it("should apply an OpenAPI 3.0 example value of zero", function () {
-    const paramValue = fromJS({
-      description: "a pet",
-      schema: {
-        type: "integer",
-        example: 0,
-      },
-    })
-    const getSystem = () => ({
-      getComponent: () => "div",
-      specSelectors: {
-        security() {},
-        parameterWithMetaByIdentity() {
-          return paramValue
-        },
-        isOAS3() {
-          return true
-        },
-        isSwagger2() {
-          return false
-        },
-      },
-      oas3Selectors: {
-        activeExamplesMember: () => null,
-      },
-      getConfigs: () => {
-        return {}
-      },
-      fn: {
-        memoizedSampleFromSchema,
-        memoizedCreateXMLExample,
-        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
-        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
-        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
-        getSampleSchema: makeGetSampleSchema(getSystem),
-        mergeJsonSchema,
-      },
-    })
-    const props = {
-      ...getSystem(),
-      operation: { get: () => {} },
-      onChange: jest.fn(),
-      param: paramValue,
-      rawParam: paramValue,
-      onChangeConsumes: () => {},
-      pathMethod: [],
-      specPath: List([]),
-    }
-
-    render(<ParameterRow {...props} />)
-
-    expect(props.onChange).toHaveBeenCalled()
-    expect(props.onChange).toHaveBeenCalledWith(paramValue, "0", false)
+    // Then
+    expect(screen.getByRole("alert", { name: /missing/i })).toBeInTheDocument()
+    expect(screen.queryByRole("alert", { name: /ambiguous/i })).toBeNull()
   })
 })

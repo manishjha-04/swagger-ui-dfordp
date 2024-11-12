@@ -1,9 +1,9 @@
-import React, { render, screen } from "react";
-import { render, screen } from "@testing-library/react";
-import { fromJS, render, screen } from "immutable";
-import DeepLink, { render, screen } from "core/components/deep-link";
-import Operations, { render, screen } from "core/components/operations";
-import { Collapse, render, screen } from "core/components/layout-utils";
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import { fromJS } from "immutable"
+import DeepLink from "core/components/deep-link"
+import Operations from "core/components/operations"
+import { Collapse } from "core/components/layout-utils"
 
 const components = {
   Collapse,
@@ -12,14 +12,13 @@ const components = {
   OperationTag: "div",
 }
 
-describe("<Operations/>", function(){
-  it("should render a Swagger2 `get` method, but not a `trace` or `foo` method", function(){
-
+describe("<Operations/>", function() {
+  it("should render a Swagger2 `get` method, but not a `trace` or `foo` method", function() {
     let props = {
       fn: {},
       specActions: {},
       layoutActions: {},
-      getComponent: (name)=> {
+      getComponent: (name) => {
         return components[name] || null
       },
       getConfigs: () => {
@@ -31,23 +30,23 @@ describe("<Operations/>", function(){
         validOperationMethods() { return ["get", "put", "post", "delete", "options", "head", "patch"] },
         taggedOperations() {
           return fromJS({
-          "default": {
-            "operations": [
-              {
-                "path": "/pets/{id}",
-                "method": "get"
-              },
-              {
-                "path": "/pets/{id}",
-                "method": "trace"
-              },
-              {
-                "path": "/pets/{id}",
-                "method": "foo"
-              },
-            ]
-          }
-        })
+            "default": {
+              "operations": [
+                {
+                  "path": "/pets/{id}",
+                  "method": "get"
+                },
+                {
+                  "path": "/pets/{id}",
+                  "method": "trace"
+                },
+                {
+                  "path": "/pets/{id}",
+                  "method": "foo"
+                },
+              ]
+            }
+          })
         },
       },
       layoutSelectors: {
@@ -63,19 +62,18 @@ describe("<Operations/>", function(){
       }
     }
 
-    render(<Operations {...props}/>)
+    render(<Operations {...props} />)
 
-    expect(screen.findByRole("span.mocked-op").length).toEqual(1)
-    expect(screen.findByRole("span.mocked-op").eq(0).attr("id")).toEqual("/pets/{id}-get")
+    expect(screen.getAllByRole("span", { className: "mocked-op" }).length).toEqual(1)
+    expect(screen.getAllByRole("span", { className: "mocked-op" })[0].getAttribute("id")).toEqual("/pets/{id}-get")
   })
 
-  it("should render an OAS3 `get` and `trace` method, but not a `foo` method", function(){
-
+  it("should render an OAS3 `get` and `trace` method, but not a `foo` method", function() {
     let props = {
       fn: {},
       specActions: {},
       layoutActions: {},
-      getComponent: (name)=> {
+      getComponent: (name) => {
         return components[name] || null
       },
       getConfigs: () => {
@@ -87,23 +85,23 @@ describe("<Operations/>", function(){
         validOperationMethods() { return ["get", "put", "post", "delete", "options", "head", "patch", "trace"] },
         taggedOperations() {
           return fromJS({
-          "default": {
-            "operations": [
-              {
-                "path": "/pets/{id}",
-                "method": "get"
-              },
-              {
-                "path": "/pets/{id}",
-                "method": "trace"
-              },
-              {
-                "path": "/pets/{id}",
-                "method": "foo"
-              },
-            ]
-          }
-        })
+            "default": {
+              "operations": [
+                {
+                  "path": "/pets/{id}",
+                  "method": "get"
+                },
+                {
+                  "path": "/pets/{id}",
+                  "method": "trace"
+                },
+                {
+                  "path": "/pets/{id}",
+                  "method": "foo"
+                },
+              ]
+            }
+          })
         },
       },
       layoutSelectors: {
@@ -119,10 +117,10 @@ describe("<Operations/>", function(){
       }
     }
 
-    render(<Operations {...props}/>)
+    render(<Operations {...props} />)
 
-    expect(screen.findByRole("span.mocked-op").length).toEqual(2)
-    expect(screen.findByRole("span.mocked-op").eq(0).attr("id")).toEqual("/pets/{id}-get")
-    expect(screen.findByRole("span.mocked-op").eq(1).attr("id")).toEqual("/pets/{id}-trace")
+    expect(screen.getAllByRole("span", { className: "mocked-op" }).length).toEqual(2)
+    expect(screen.getAllByRole("span", { className: "mocked-op" })[0].getAttribute("id")).toEqual("/pets/{id}-get")
+    expect(screen.getAllByRole("span", { className: "mocked-op" })[1].getAttribute("id")).toEqual("/pets/{id}-trace")
   })
 })
