@@ -1,6 +1,7 @@
 import React, { render } from "react";
 import { render, screen } from "@testing-library/react";
 import Operation, { render } from "core/components/operation";
+import userEvent from '@testing-library/user-event';
 
 describe("<Operation/>", function(){
   it.skip("blanket tests", function(){
