@@ -1,47 +1,54 @@
 import React from "react"
-import { mount } from "enzyme"
+import { render, screen } from "@testing-library/react"
+import "@testing-library/jest-dom" // Import this for extended matchers
 import FilterContainer from "core/containers/filter"
 import { Col } from "core/components/layout-utils"
 
-describe("<FilterContainer/>", function(){
-
+describe("<FilterContainer/>", () => {
   const mockedProps = {
     specSelectors: {
-      loadingStatus() {}
+      loadingStatus: () => {},
     },
     layoutSelectors: {
-      currentFilter() {}
+      currentFilter: () => {},
     },
-    getComponent: () => {return Col}
+    getComponent: () => Col,
   }
 
-  it("renders FilterContainer if filter is provided", function(){
-
+  it("renders FilterContainer if filter is provided", () => {
     // Given
-    let props = {...mockedProps}
-    props.layoutSelectors = {...mockedProps.specSelectors}
-    props.layoutSelectors.currentFilter = function() {return true}
+    const props = {
+      ...mockedProps,
+      layoutSelectors: {
+        ...mockedProps.layoutSelectors,
+        currentFilter: () => true,
+      },
+    }
 
     // When
-    let wrapper = mount(<FilterContainer {...props}/>)
+    render(<FilterContainer {...props} />)
 
     // Then
-    const renderedColInsideFilter = wrapper.find(Col)
-    expect(renderedColInsideFilter.length).toEqual(1)
+    const renderedColInsideFilter = screen.queryByTestId("filter-col")
+   expect(renderedColInsideFilter).toBeInTheDocument()
+
   })
 
-  it("does not render FilterContainer if filter is false", function(){
-
+  it("does not render FilterContainer if filter is false", () => {
     // Given
-    let props = {...mockedProps}
-    props.layoutSelectors = {...mockedProps.specSelectors}
-    props.layoutSelectors.currentFilter = function() {return false}
+    const props = {
+      ...mockedProps,
+      layoutSelectors: {
+        ...mockedProps.layoutSelectors,
+        currentFilter: () => false,
+      },
+    }
 
     // When
-    let wrapper = mount(<FilterContainer {...props}/>)
+    render(<FilterContainer {...props} />)
 
     // Then
-    const renderedColInsideFilter = wrapper.find(Col)
-    expect(renderedColInsideFilter.length).toEqual(0)
+    const renderedColInsideFilter = screen.queryByTestId("filter-col")
+    expect(renderedColInsideFilter).not.toBeInTheDocument()
   })
 })

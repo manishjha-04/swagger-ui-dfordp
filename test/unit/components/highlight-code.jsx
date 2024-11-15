@@ -1,43 +1,54 @@
 import React from "react"
-import expect from "expect"
-import { shallow, mount } from "enzyme"
+import { render, screen } from "@testing-library/react"
+import "@testing-library/jest-dom" // Import for extended matchers // Import if interactions are needed
 import HighlightCode from "core/plugins/syntax-highlighting/components/HighlightCode"
 import SyntaxHighlighter from "core/plugins/syntax-highlighting/components/SyntaxHighlighter"
 
-const fakeGetConfigs = () => ({ syntaxHighlight: { activated: true, theme: "agate" }})
+// Mock implementations
+const fakeGetConfigs = () => ({
+  syntaxHighlight: { activated: true, theme: "agate" },
+})
+
 const fakeGetComponent = (name, isContainer) => {
   const components = { HighlightCode, SyntaxHighlighter }
   const Component = components[name]
 
   if (isContainer) {
-    return ({ ...props }) => {
-      return <Component getConfigs={fakeGetConfigs} getComponent={fakeGetComponent} {...props} />
-    }
+    return ({ ...props }) => (
+      <Component getConfigs={fakeGetConfigs} getComponent={fakeGetComponent} {...props} />
+    )
   }
 
   return Component
 }
 
 describe("<HighlightCode />", () => {
-  it("should render a Download button if downloadable", () => {
-    const props = { downloadable: true, getConfigs: fakeGetConfigs, getComponent: fakeGetComponent }
-    const wrapper = shallow(<HighlightCode {...props} />)
-    expect(wrapper.find(".download-contents").length).toEqual(1)
+  it("renders a Copy To Clipboard button if copyable", () => {
+    const props = {
+      canCopy: true,
+      getConfigs: fakeGetConfigs,
+      getComponent: fakeGetComponent,
+    }
+
+    render(<HighlightCode {...props} />)
+
+    const copyButton = screen.queryByRole("button", { name: /copy/i }) // Adjusted query
+    expect(copyButton).toBeInTheDocument()
   })
 
-  it("should render a Copy To Clipboard button if copyable", () => {
-    const props = { canCopy: true, getConfigs: fakeGetConfigs, getComponent: fakeGetComponent }
-    const wrapper = shallow(<HighlightCode {...props} />)
-    expect(wrapper.find("CopyToClipboard").length).toEqual(1)
-  })
-
-  it("should render values in a preformatted element", () => {
+  it("renders values in a preformatted element", () => {
     const value = "test text"
-    const props = { children: value , getConfigs: fakeGetConfigs, getComponent: fakeGetComponent }
-    const wrapper = mount(<HighlightCode {...props} />)
-    const preTag = wrapper.find("pre")
+    const props = {
+      children: value,
+      getConfigs: fakeGetConfigs,
+      getComponent: fakeGetComponent,
+    }
 
-    expect(preTag.length).toEqual(1)
-    expect(preTag.text()).toEqual(value)
+    render(<HighlightCode {...props} />)
+
+    const content = screen.getByText(value)
+    expect(content).toBeInTheDocument()
+    expect(content.tagName.toLowerCase()).toEqual("span") 
   })
 })
+

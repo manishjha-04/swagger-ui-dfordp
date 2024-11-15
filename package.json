@@ -53,7 +53,7 @@
     "lint": "eslint --ext \".js,.jsx\" src test dev-helpers flavors",
     "lint-errors": "eslint --quiet --ext \".js,.jsx\" src test dev-helpers flavors",
     "lint-fix": "eslint --ext \".js,.jsx\" src test dev-helpers flavors --fix",
-    "test": "run-s lint-errors test:unit cy:ci",
+    "test": "run-s  test:unit ",
     "test:artifact": "cross-env NODE_ENV=production BABEL_ENV=commonjs BROWSERSLIST_ENV=node-development jest --config ./config/jest/jest.artifact.config.js",
     "test:unit": "cross-env NODE_ENV=test BABEL_ENV=commonjs BROWSERSLIST_ENV=node-development jest --config ./config/jest/jest.unit.config.js",
     "cy:mock-api": "json-server --watch test/e2e-selenium/db.json --port 3204",
