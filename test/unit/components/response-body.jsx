@@ -1,63 +1,81 @@
 import React from "react"
-import { shallow } from "enzyme"
+import { render, screen } from "@testing-library/react"
+import '@testing-library/jest-dom'
 import ResponseBody from "core/components/response-body"
 
-describe("<ResponseBody />", function () {
+describe("<ResponseBody />", () => {
+  // Mock component that actually returns an element we can query
+  const HighlightCode = ({ children, canCopy }) => (
+    <div data-testid="highlight-code" data-cancopy={canCopy}>
+      {children}
+    </div>
+  )
+
   const components = {
-    HighlightCode: () => null
-  }
-  const props = {
-    getComponent: c => components[c],
+    HighlightCode
   }
 
-  it("renders ResponseBody as 'application/json'", function () {
+  let props
+
+  beforeEach(() => {
+    // Reset props before each test
+    props = {
+      getComponent: c => components[c],
+      content: "",
+      contentType: ""
+    }
+  })
+
+  it("renders ResponseBody as 'application/json'", () => {
     props.contentType = "application/json"
     props.content = "{\"key\": \"a test value\"}"
-    const wrapper = shallow(<ResponseBody {...props} />)
-    expect(wrapper.find("HighlightCode").length).toEqual(1)
+    render(<ResponseBody {...props} />)
+    expect(screen.getByTestId("highlight-code")).toBeInTheDocument()
   })
 
-  it("renders ResponseBody as 'text/html'", function () {
-    props.contentType = "application/json"
+  it("renders ResponseBody as 'text/html'", () => {
+    props.contentType = "text/html"
     props.content = "<b>Result</b>"
-    const wrapper = shallow(<ResponseBody {...props} />)
-    expect(wrapper.find("HighlightCode").length).toEqual(1)
+    render(<ResponseBody {...props} />)
+    expect(screen.getByTestId("highlight-code")).toBeInTheDocument()
   })
 
-  it("renders ResponseBody as 'image/svg'", function () {
+  it("renders ResponseBody as 'image/svg'", () => {
     props.contentType = "image/svg"
-    const wrapper = shallow(<ResponseBody {...props} />)
-    expect(wrapper.find("HighlightCode").length).toEqual(0)
+    const { container } = render(<ResponseBody {...props} />)
+    expect(container.querySelector("[data-testid='highlight-code']")).not.toBeInTheDocument()
   })
 
-  it("should render a copyable highlightCodeComponent for text types", function () {
+  it("should render a copyable highlightCodeComponent for text types", () => {
     props.contentType = "text/plain"
     props.content = "test text"
-    const wrapper = shallow(<ResponseBody {...props} />)
-    expect(wrapper.find("HighlightCode[canCopy]").length).toEqual(1)
+    render(<ResponseBody {...props} />)
+    const copyableCode = screen.getByTestId("highlight-code")
+    expect(copyableCode).toBeInTheDocument()
+    expect(copyableCode).toHaveAttribute("data-cancopy")
   })
 
-  it("should render Download file link for non-empty Blob response", function () {
+  it("should render Download file link for non-empty Blob response", () => {
     props.contentType = "application/octet-stream"
     props.content = new Blob(["\"test\""], { type: props.contentType })
-    const wrapper = shallow(<ResponseBody {...props} />)
-    expect(wrapper.text()).toMatch(/Download file/)
+    render(<ResponseBody {...props} />)
+    expect(screen.getByText(/Download file/)).toBeInTheDocument()
   })
 
-  it("should render Download file link for non-empty text response", function () {
+  it("should render Download file link for non-empty text response", () => {
     props.contentType = "text/plain"
     props.content = "test text"
     props.headers = {
       "Content-Disposition": "attachment; filename=\"test.txt\"",
     }
-    const wrapper = shallow(<ResponseBody {...props} />)
-    expect(wrapper.text()).toMatch(/Download file/)
+    render(<ResponseBody {...props} />)
+    expect(screen.getByText(/Download file/)).toBeInTheDocument()
   })
 
-  it("should not render Download file link for empty response", function () {
+  it("should not render Download file link for empty response", () => {
     props.contentType = "application/octet-stream"
     props.content = new Blob()
-    const wrapper = shallow(<ResponseBody {...props} />)
-    expect(wrapper.text()).not.toMatch(/Download file/)
+    render(<ResponseBody {...props} />)
+    expect(screen.queryByText(/Download file/)).not.toBeInTheDocument()
   })
 })
