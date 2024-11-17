@@ -1,9 +1,9 @@
 import React from "react"
-import { render } from "enzyme"
+import { render, screen } from "@testing-library/react"
 import { fromJS } from "immutable"
 import DeepLink from "core/components/deep-link"
 import Operations from "core/components/operations"
-import {Collapse} from "core/components/layout-utils"
+import { Collapse } from "core/components/layout-utils"
 
 const components = {
   Collapse,
@@ -14,7 +14,6 @@ const components = {
 
 describe("<Operations/>", function(){
   it("should render a Swagger2 `get` method, but not a `trace` or `foo` method", function(){
-
     let props = {
       fn: {},
       specActions: {},
@@ -63,14 +62,14 @@ describe("<Operations/>", function(){
       }
     }
 
-    let wrapper = render(<Operations {...props}/>)
+    const { container } = render(<Operations {...props}/>)
+    const operations = container.querySelectorAll("span.mocked-op")
 
-    expect(wrapper.find("span.mocked-op").length).toEqual(1)
-    expect(wrapper.find("span.mocked-op").eq(0).attr("id")).toEqual("/pets/{id}-get")
+    expect(operations.length).toBe(1)
+    expect(operations[0].id).toBe('/pets/{id}-get')
   })
 
   it("should render an OAS3 `get` and `trace` method, but not a `foo` method", function(){
-
     let props = {
       fn: {},
       specActions: {},
@@ -119,10 +118,11 @@ describe("<Operations/>", function(){
       }
     }
 
-    let wrapper = render(<Operations {...props}/>)
+    const { container } = render(<Operations {...props}/>)
+    const operations = container.querySelectorAll("span.mocked-op")
 
-    expect(wrapper.find("span.mocked-op").length).toEqual(2)
-    expect(wrapper.find("span.mocked-op").eq(0).attr("id")).toEqual("/pets/{id}-get")
-    expect(wrapper.find("span.mocked-op").eq(1).attr("id")).toEqual("/pets/{id}-trace")
+    expect(operations.length).toBe(2)
+    expect(operations[0].id).toBe('/pets/{id}-get')
+    expect(operations[1].id).toBe('/pets/{id}-trace')
   })
 })
