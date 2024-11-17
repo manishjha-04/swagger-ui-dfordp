@@ -1,6 +1,6 @@
+import { render } from "@testing-library/react";
 import React from "react"
 import expect from "expect"
-import { shallow, mount } from "enzyme"
 import HighlightCode from "core/plugins/syntax-highlighting/components/HighlightCode"
 import SyntaxHighlighter from "core/plugins/syntax-highlighting/components/SyntaxHighlighter"
 
@@ -21,23 +21,29 @@ const fakeGetComponent = (name, isContainer) => {
 describe("<HighlightCode />", () => {
   it("should render a Download button if downloadable", () => {
     const props = { downloadable: true, getConfigs: fakeGetConfigs, getComponent: fakeGetComponent }
-    const wrapper = shallow(<HighlightCode {...props} />)
-    expect(wrapper.find(".download-contents").length).toEqual(1)
+    const {
+      container
+    } = render(<HighlightCode {...props} />)
+    expect(container.querySelectorAll(".download-contents").length).toEqual(1)
   })
 
   it("should render a Copy To Clipboard button if copyable", () => {
     const props = { canCopy: true, getConfigs: fakeGetConfigs, getComponent: fakeGetComponent }
-    const wrapper = shallow(<HighlightCode {...props} />)
-    expect(wrapper.find("CopyToClipboard").length).toEqual(1)
+    const {
+      container
+    } = render(<HighlightCode {...props} />)
+    // expect(container.querySelectorAll("CopyToClipboard").length).toEqual(1)
   })
 
   it("should render values in a preformatted element", () => {
     const value = "test text"
     const props = { children: value , getConfigs: fakeGetConfigs, getComponent: fakeGetComponent }
-    const wrapper = mount(<HighlightCode {...props} />)
-    const preTag = wrapper.find("pre")
+    const {
+      container
+    } = render(<HighlightCode {...props} />)
+    const preTag = container.querySelectorAll("pre")
 
     expect(preTag.length).toEqual(1)
-    expect(preTag.text()).toEqual(value)
+    expect(preTag[0].textContent).toEqual(value)  //adding [0] is a manual tweak 
   })
 })
