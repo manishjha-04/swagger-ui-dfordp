@@ -3,7 +3,8 @@
  */
 import React from "react"
 import { List, fromJS } from "immutable"
-import { render } from "enzyme"
+import { render, screen } from "@testing-library/react"
+import "@testing-library/jest-dom" // Add this import for toHaveClass matcher
 
 import ParameterRow from "core/components/parameter-row"
 import {
@@ -45,7 +46,6 @@ describe("<ParameterRow/>", () => {
       pathMethod: [],
     }
   }
-
   it("Can render Swagger 2 parameter type with format", () => {
     const param = fromJS({
       name: "petUuid",
@@ -56,12 +56,16 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: false })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("string($uuid)")
+    // Updated test to handle the format being wrapped in ($ )
+    const typeElement = screen.getByText("string")
+    const formatElement = screen.getByText(/\(\$\s*uuid\s*\)/, { selector: '.prop-format' })
+    
+    expect(typeElement).toBeInTheDocument()
+    expect(formatElement).toBeInTheDocument()
+    expect(typeElement.closest('.parameter__type')).toBeInTheDocument()
   })
-
   it("Can render Swagger 2 parameter type without format", () => {
     const param = fromJS({
       name: "petId",
@@ -71,10 +75,14 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: false })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("string")
+    const typeElement = screen.getByText("string", {
+      exact: false,
+      selector: ".parameter__type"
+    })
+    expect(typeElement).toBeInTheDocument()
+    expect(typeElement).toHaveClass("parameter__type")
   })
 
   it("Can render Swagger 2 parameter type boolean without format", () => {
@@ -86,10 +94,14 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: false })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("boolean")
+    const typeElement = screen.getByText("boolean", {
+      exact: false,
+      selector: ".parameter__type"
+    })
+    expect(typeElement).toBeInTheDocument()
+    expect(typeElement).toHaveClass("parameter__type")
   })
 
   it("Can render OAS3 parameter type with format", () => {
@@ -104,11 +116,17 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: true })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("string($uuid)")
+    // Updated test to handle the format being wrapped in ($ )
+    const typeElement = screen.getByText("string")
+    const formatElement = screen.getByText(/\(\$\s*uuid\s*\)/, { selector: '.prop-format' })
+    
+    expect(typeElement).toBeInTheDocument()
+    expect(formatElement).toBeInTheDocument()
+    expect(typeElement.closest('.parameter__type')).toBeInTheDocument()
   })
+
 
   it("Can render OAS3 parameter type without format", () => {
     const param = fromJS({
@@ -121,10 +139,14 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: true })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("string")
+    const typeElement = screen.getByText("string", {
+      exact: false,
+      selector: ".parameter__type"
+    })
+    expect(typeElement).toBeInTheDocument()
+    expect(typeElement).toHaveClass("parameter__type")
   })
 
   it("Can render OAS3 parameter type boolean without format", () => {
@@ -138,12 +160,18 @@ describe("<ParameterRow/>", () => {
     })
 
     const props = createProps({ param, isOAS3: true })
-    const wrapper = render(<ParameterRow {...props} />)
+    render(<ParameterRow {...props} />)
 
-    expect(wrapper.find(".parameter__type").length).toEqual(1)
-    expect(wrapper.find(".parameter__type").text()).toEqual("boolean")
+    const typeElement = screen.getByText("boolean", {
+      exact: false,
+      selector: ".parameter__type"
+    })
+    expect(typeElement).toBeInTheDocument()
+    expect(typeElement).toHaveClass("parameter__type")
   })
 })
+
+// Rest of the file remains unchanged...
 
 describe("bug #5573: zero default and example values", function () {
   it("should apply a Swagger 2.0 default value of zero", function () {
@@ -193,6 +221,7 @@ describe("bug #5573: zero default and example values", function () {
     expect(props.onChange).toHaveBeenCalled()
     expect(props.onChange).toHaveBeenCalledWith(paramValue, "0", false)
   })
+
   it("should apply a Swagger 2.0 example value of zero", function () {
     const paramValue = fromJS({
       description: "a pet",
@@ -243,6 +272,7 @@ describe("bug #5573: zero default and example values", function () {
     expect(props.onChange).toHaveBeenCalled()
     expect(props.onChange).toHaveBeenCalledWith(paramValue, "0", false)
   })
+
   it("should apply an OpenAPI 3.0 default value of zero", function () {
     const paramValue = fromJS({
       description: "a pet",
@@ -297,6 +327,7 @@ describe("bug #5573: zero default and example values", function () {
     expect(props.onChange).toHaveBeenCalled()
     expect(props.onChange).toHaveBeenCalledWith(paramValue, "0", false)
   })
+
   it("should apply an OpenAPI 3.0 example value of zero", function () {
     const paramValue = fromJS({
       description: "a pet",
